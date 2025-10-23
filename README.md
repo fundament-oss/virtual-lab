@@ -1,6 +1,6 @@
 # virtual-lab
 
-Hard fork of metal-stack/mini-lab. Will try to emulate/aproach the ideas of [MEP-18](https://metal-stack.io/docs/mep-18-autonomous-control-plane/) and eventually adding Fundament on top of that, while also using different tools (k3d, mise, just). To start, I moved everything to a subdirectory _mini-lab and slowly adding back in stuff to the root as needed. Done this way to start with a clean directory while also properly retaining git history and authorship of the original mini-lab.
+Hard fork of [metal-stack/mini-lab](https://github.com/metal-stack/mini-lab/). Will try to emulate/aproach the ideas of [MEP-18](https://metal-stack.io/docs/mep-18-autonomous-control-plane/) and eventually adding Fundament on top of that, while also using different tools (k3d, mise, just). To start, I moved everything to a subdirectory _mini-lab and slowly adding back in stuff to the root as needed. Done this way to start with a clean directory while also properly retaining git history and authorship of the original mini-lab.
 
 I changed the name from `mini-lab` to `virtual-lab` to have a clear distinction when talking and thinking about them. Also because with MEP-18 I'm not sure you can call this 'mini' any longer... Oh and I maybe want to add some settings to allow for virtual partitions with a lot of nodes, I didn't get Framework Desktop at 128GB to self-host LLMs..
 
