@@ -39,7 +39,7 @@ outputs = [".python/.venv/bin/python"]
 description = "Install Python dependencies into venv"
 depends = ["setup-venv"]
 run = ".python/.venv/bin/pip install -r .python/requirements.txt"
-sources = [".python/requirements.txt"]
+sources = [".python/requirements.txt"] # TODO: this filter doesn't seem to work, install runs every `mise install`, is annoying.
 outputs = [".python/.venv/lib/python*/site-packages/ansible"]
 
 [tasks.ansible-collections]

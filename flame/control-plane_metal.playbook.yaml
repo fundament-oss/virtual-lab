@@ -1,5 +1,5 @@
 ---
-- name: deploy flame control-plane on spark
+- name: Deploy control-plane metal-stack for flame on spark
   hosts: control-plane
   connection: local
   gather_facts: false
@@ -29,6 +29,3 @@
       tags: auth
     - name: metal-stack.metal-roles/control-plane/roles/metal
       tags: metal
-# - name: deploy gardener
-#   import_playbook: deploy_gardener.yaml
-#   when: gardener_enabled

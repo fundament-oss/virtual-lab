@@ -84,7 +84,7 @@ gen-certs:
 			cfssl/cfssl /work/scripts/roll_certs.sh; fi
 
 .PHONY: roll-certs
-roll-certs:
+roll-certs: # Done
 	rm files/certs/ca.pem
 	$(MAKE) gen-certs
 
@@ -93,7 +93,7 @@ control-plane: control-plane-bake env
 	docker compose up --remove-orphans --force-recreate control-plane
 
 .PHONY: create-proxy-registries
-create-proxy-registries:
+create-proxy-registries: # Done
 	docker compose up -d --force-recreate proxy-docker proxy-ghcr proxy-gcr proxy-k8s proxy-quay # Done
 
 .PHONY: control-plane-bake
@@ -112,8 +112,8 @@ partition: partition-bake
 
 .PHONY: partition-bake
 partition-bake: external_network
-	docker pull $(MINI_LAB_VM_IMAGE)
-	docker pull $(MINI_LAB_SONIC_IMAGE)
+	docker pull $(MINI_LAB_VM_IMAGE) # Done
+	docker pull $(MINI_LAB_SONIC_IMAGE) # Done
 	@if ! sudo $(CONTAINERLAB) --topo $(LAB_TOPOLOGY) inspect | grep -i leaf01 > /dev/null; then \
 		sudo --preserve-env $(CONTAINERLAB) deploy --topo $(LAB_TOPOLOGY) --reconfigure && \
 		./scripts/deactivate_offloading.sh; fi

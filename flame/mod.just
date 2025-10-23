@@ -4,25 +4,20 @@ _default:
 export VLAB_FLAME_VM_IMAGE    := "ghcr.io/metal-stack/mini-lab-vms:latest"
 export VLAB_FLAME_SONIC_IMAGE := "ghcr.io/metal-stack/mini-lab-sonic:latest"
 
-start: obtain-role-requirements prefetch-docker-images gen-certs
+start: _obtain-role-requirements _gen-certs _control-plane _partition
+
+_control-plane:
+    # TODO: fail if spark/kubeconfig doesn't exist.
     KUBECONFIG=../spark/kubeconfig ansible-playbook \
        -i inventories/control-plane.yaml \
-       control-plane.playbook.yaml \
+       control-plane_metal.playbook.yaml \
        # --extra-vars "@.extra_vars.yaml"
-    # TODO: start control partition (containerlab + ansible playbook)
 
-    # image: ghcr.io/metal-stack/metal-deployment-base:${DEPLOYMENT_BASE_IMAGE_TAG}
-    # container_name: deploy-control-plane
-    # volumes:
-    #   - /var/run/docker.sock:/var/run/docker.sock:z
-    #   - .:/mini-lab
-    #   # for developing role dependencies
-    #   # TODO: make this a switch
-    #   # - ${HOME}/.ansible/roles/ansible-common:/root/.ansible/roles/ansible-common:ro
-    #   # - ${HOME}/.ansible/roles/metal-roles:/root/.ansible/roles/metal-roles:ro
-    #   # - ${HOME}/.ansible/roles/metal-ansible-modules:/root/.ansible/roles/metal-ansible-modules:ro
-    #   # - ${HOME}/git/github.com/metal-stack/helm-charts:/helm-charts:ro
-    # environment:
+    KUBECONFIG=../spark/kubeconfig ansible-playbook \
+        -i inventories/control-plane.yaml \
+        control-plane_gardener.playbook.yaml \
+        # --extra-vars "@.extra_vars.yaml"
+    #
     #   - ANSIBLE_CONFIG=/mini-lab/ansible.cfg
     #   - KUBECONFIG=/mini-lab/.kubeconfig
     #   - K8S_AUTH_KUBECONFIG=/mini-lab/.kubeconfig
@@ -30,19 +25,23 @@ start: obtain-role-requirements prefetch-docker-images gen-certs
     #   - DOCKER_HUB_USER=${DOCKER_HUB_USER}
     #   - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
     #   - GARDENER_ENABLED=${GARDENER_ENABLED:-}
-    # network_mode: host
-    # working_dir: /mini-lab
-    # entrypoint:
-    #   - /bin/bash
-    #   - -ce
-    #   - |
-    #     ansible-playbook \
-    #       -i inventories/control-plane.yaml \
-    #       obtain_role_requirements.yaml
-    #     ansible-galaxy install --ignore-errors -r requirements.yaml
+    #
+    # The docker-compose mounted the helm charts, what for? find out and maybe fix my aproach
+    # # volumes:
+    # #   - ${HOME}/git/github.com/metal-stack/helm-charts:/helm-charts:ro
 
+_partition: _external-network
+    docker pull {{VLAB_FLAME_VM_IMAGE}}
+    docker pull {{VLAB_FLAME_SONIC_IMAGE}}
+    echo "TODO containerlab up"
+    #	@if ! sudo $(CONTAINERLAB) --topo $(LAB_TOPOLOGY) inspect | grep -i leaf01 > /dev/null; then \
+    #	# sudo --preserve-env $(CONTAINERLAB) deploy --topo $(LAB_TOPOLOGY) --reconfigure && \
+    #	# ./scripts/deactivate_offloading.sh; fi
+    echo "TODO ansible partition"
+    # docker compose up --remove-orphans --force-recreate partition
 
-
+_external-network:
+    echo "TODO external_network"
 
 # up: env gen-certs control-plane-bake partition-bake
 # 	@chmod 600 files/ssh/id_rsa
@@ -59,7 +58,7 @@ start: obtain-role-requirements prefetch-docker-images gen-certs
 # 	ssh -F files/ssh/config leaf01 'systemctl restart bgp'
 # 	ssh -F files/ssh/config leaf02 'systemctl restart bgp'
 
-obtain-role-requirements:
+_obtain-role-requirements:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -79,12 +78,8 @@ obtain-role-requirements:
 
     ansible-galaxy install --ignore-errors -r requirements.yaml
 
-prefetch-docker-images:
-    docker pull {{VLAB_FLAME_VM_IMAGE}}
-    docker pull {{VLAB_FLAME_SONIC_IMAGE}}
-
 # Generate TLS certificates for metal-stack components (use 'just gen-certs force' to regenerate)
-gen-certs force="":
+_gen-certs force="":
     #!/usr/bin/env bash
     set -euo pipefail
 
