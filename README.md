@@ -26,9 +26,9 @@ Run `just help` to get introduced to the available commands in this lab. Run `ju
 
 ## Layers
 
-It's probably not helping that I'm using different terms than MEP-18. I had a hard time wrapping my head around the naming and the grouping of objects and just wanted to get some unique names that don't conflict with any other terminology or technology that is used.
+It's probably not helping that I'm using different terms than MEP-18. I had a hard time wrapping my head around the naming and the grouping of objects and just wanted to get some unique names that don't conflict with any other terminology or technology that is used in the metal-stack/gardener landscape.
 
-- **spark**: The spark-layer is a simple 3-node k8s cluster which runs the control-planes for the flame-layer. MEP-18 calls this "K3s Standalone" and "Initial Cluster". The spark layer is not auto-healing.
+- **spark**: The spark-layer is a very simple 3-node k8s cluster which runs the control-planes for the flame-layer. MEP-18 calls this "Initial Cluster" or "K3s Standalone". The spark layer is not auto-healing.
 - **flame**: The flame layer is an auto-healing metal partition that has it's control-planes (metal-stack and gardener) running on the spark cluster. The flame partition will run control-planes for the fire layer. MEP-18 calls this: "Initial Partition", "Target Cluster for metal-stack" and "Target cluster for Gardener".
 - **fire**: Fire comprises of the control-planes and partitions for the actual workload clusters that are delivered to tenants. The control-planes for the fire layer run on top of the flame partition.
 

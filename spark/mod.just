@@ -1,4 +1,39 @@
-mod cluster
-
 _default:
-    @just --list spark --list-submodules
+    @just --list spark
+
+# TODO: if we go for instantiating, then "vlab-${id}-spark" or smth.
+# TODO: Is `vlab-` a good prefix? Want it to be short, and also applicable in all virtualization tools and layers (k3d, containerlab)
+cluster_name := "vlab-spark"
+
+# Start the k3d cluster, create the cluster if it doesn't exist yet.
+start:
+    #!/usr/bin/env bash
+    CLUSTER_EXISTS=$(k3d cluster list "{{cluster_name}}" --no-headers | wc -l | xargs)
+    if [ $CLUSTER_EXISTS -eq 0 ]; then
+            k3d cluster create "{{cluster_name}}" --config k3d.yaml
+    else
+            k3d cluster start "{{cluster_name}}"
+    fi
+    k3d kubeconfig get "{{cluster_name}}" > kubeconfig
+
+# Stop the k3d cluster
+stop:
+    k3d cluster stop "{{cluster_name}}"
+
+# Delete the k3d cluster
+delete:
+    KUBECONFIG=./kubeconfig k3d cluster delete "{{cluster_name}}" --config k3d.yaml
+    rm ./kubeconfig
+
+# Run kubectl against the spark cluster
+kubectl *ARGS:
+    # TODO: add detection whether cluster is started.
+    @KUBECONFIG=./kubeconfig kubectl {{ARGS}}
+
+# Run k9s against the boostrap cluster
+k9s *ARGS:
+    # TODO: add detection whether cluster is started.
+    @KUBECONFIG=./kubeconfig k9s {{ARGS}}
+
+# TODO: maybe instead have a `just spark kubecontext <ARGS>` that can be used to run kubectl/k9s/helm/whatever.
+# Or just have everyone expect spark/kubeconfig to be the kubeconfig for the spark cluster.

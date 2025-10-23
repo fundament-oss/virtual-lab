@@ -23,6 +23,7 @@ mod flame
 # Start the complete virtual-lab
 everything:
     just proxy-registries start
-    just spark cluster start
+    just spark start
+    just flame start
     # just flame start
     # just fire start
