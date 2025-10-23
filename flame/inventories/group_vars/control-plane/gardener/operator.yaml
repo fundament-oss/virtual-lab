@@ -6,8 +6,8 @@ gardener_operator_backup_infrastructure:
   region: us-east-1
   bucket: gardener-operator
   secretRef:
-   name: backup-secret
-   namespace: garden
+    name: backup-secret
+    namespace: garden
 
 gardener_operator_backup_infrastructure_secret:
   endpoint: "{{ ('http://' + minio_dns_name + ':8080' ) | b64encode }}"
