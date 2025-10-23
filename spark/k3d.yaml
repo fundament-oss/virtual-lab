@@ -1,0 +1,60 @@
+---
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+servers: 3
+agents: 0
+# image: TODO # TODO: version-pin image
+# subnet: "auto" # Allocate an available subnet, if we go for instantiating then maybe give user control? Or maybe NOT...
+kubeAPI:
+  hostIP: 0.0.0.0 # TODO: not sure, prefer specific IP to avoid collisions. Same with the port forwards below.
+  hostPort: "6443"
+network: "vlab-spark" # Created by `just init`
+ports:
+  - port: 4443:4443
+    nodeFilters:
+      - server:*
+  - port: 8080:8080
+    nodeFilters:
+      - server:*
+  - port: 4150:4150
+    nodeFilters:
+      - server:*
+  - port: 50051:50051
+    nodeFilters:
+      - server:*
+options:
+  k3d:
+    wait: true
+    timeout: 600s # TODO: time initial up, then multiply by at least 10 because my PC and uplink are terribly fast.
+    # disableLoadbalancer: false # TODO: this needed?
+  k3s:
+    extraArgs:
+      - arg: "--disable=traefik"
+        nodeFilters:
+          - server:*
+      - arg: "--disable=servicelb"
+        nodeFilters:
+          - server:*
+      # TODO: add tls-san?
+  kubeconfig:
+    updateDefaultKubeconfig: false
+    switchCurrentContext: false
+registries:
+  # TODO: I definitely want these proxies, but they should probably be a global feature, then they can be shared with mini-lab was well. This does mean that `just spark cluster start` should fail when these proxies are not started yet.
+  config: |
+    mirrors:
+      "docker.io":
+        endpoint:
+          - http://proxy-docker:5000
+      "gcr.io":
+        endpoint:
+          - http://proxy-gcr:5000
+      "ghcr.io":
+        endpoint:
+          - http://proxy-ghcr:5000
+      "quay.io":
+        endpoint:
+          - http://proxy-quay:5000
+      "registry.k8s.io":
+        endpoint:
+          - http://proxy-k8s:5000

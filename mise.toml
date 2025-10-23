@@ -1,0 +1,21 @@
+[tools]
+
+## Scripting & Tooling
+just = "1.43.0"
+yq = "4.47.2"
+
+## Virtualization
+k3d = "5.8.3"
+"ubi:srl-labs/containerlab" = "0.70.2"
+# TODO: qemu, probably better installed by the user in the OS itself.
+
+## Deployment
+# TODO: ansible
+# TODO: helm
+# TODO: kubectl
+
+## Usage & Inspection/debugging
+"ubi:metal-stack/metalctl" = "latest" # TODO: version pin
+# TODO: gardenctl
+# TODO: cilium-cli ???
+k9s = "0.50.13"

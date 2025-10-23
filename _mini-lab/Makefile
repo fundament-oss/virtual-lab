@@ -94,10 +94,10 @@ control-plane: control-plane-bake env
 
 .PHONY: create-proxy-registries
 create-proxy-registries:
-	docker compose up -d --force-recreate proxy-docker proxy-ghcr proxy-gcr proxy-k8s proxy-quay
+	docker compose up -d --force-recreate proxy-docker proxy-ghcr proxy-gcr proxy-k8s proxy-quay # Done
 
 .PHONY: control-plane-bake
-control-plane-bake:
+control-plane-bake: # Done
 	@if ! which kind > /dev/null; then echo "kind needs to be installed"; exit 1; fi
 	@if ! kind get clusters | grep metal-control-plane > /dev/null; then \
 		kind create cluster $(KIND_ARGS) \
