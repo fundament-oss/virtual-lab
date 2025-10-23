@@ -1,0 +1,3 @@
+- Change namespace to `flame-metal-control-plane`
+- Also update files/certs/** to reflect that name in svc hostnames
+- Also change files/certs/ca-csr.json to vlab-flame

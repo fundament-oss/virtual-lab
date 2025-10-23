@@ -4,56 +4,8 @@ _default:
 export VLAB_FLAME_VM_IMAGE    := "ghcr.io/metal-stack/mini-lab-vms:latest"
 export VLAB_FLAME_SONIC_IMAGE := "ghcr.io/metal-stack/mini-lab-sonic:latest"
 
-# Generate TLS certificates for metal-stack components (use 'just gen-certs force' to regenerate)
-gen-certs force="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    if [ -z "{{force}}" ] && [ -f "files/certs/ca.pem" ]; then
-        echo "Certificates already exist, skipping generation"
-        exit 0
-    fi
-
-    echo "Generating certificates..."
-    cd files/certs
-
-    # Clean up any existing certs
-    rm -f *.pem **/*.pem **/*.crt
-
-    # Generate CA certificate
-    echo "Generating CA cert"
-    cfssl genkey -initca ca-csr.json | cfssljson -bare ca
-    rm -f *.csr
-
-    # Generate component certificates
-    for component in grpc masterdata-api; do
-        pushd $component > /dev/null
-        echo "Generating $component certs"
-
-        if [ -f "server.json" ]; then
-            cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client-server server.json | cfssljson -bare server
-        fi
-
-        if [ -f "client.json" ]; then
-            cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client client.json | cfssljson -bare client
-        fi
-
-        rm -f *.csr
-        popd > /dev/null
-    done
-
-    # Generate NSQ cert with concatenated format
-    pushd nsq > /dev/null
-    echo "Generating nsq certs"
-    cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client-server client.json | cfssljson -bare client
-    cat client.pem client-key.pem > client.crt
-    rm -f *.csr
-    popd > /dev/null
-
-    echo "Certificate generation complete"
-
-start: gen-certs _obtain-role-requirements _prefetch_docker_images
-    ansible-playbook \
+start: obtain-role-requirements prefetch-docker-images gen-certs
+    KUBECONFIG=../spark/kubeconfig ansible-playbook \
        -i inventories/control-plane.yaml \
        control-plane.playbook.yaml \
        # --extra-vars "@.extra_vars.yaml"
@@ -107,7 +59,7 @@ start: gen-certs _obtain-role-requirements _prefetch_docker_images
 # 	ssh -F files/ssh/config leaf01 'systemctl restart bgp'
 # 	ssh -F files/ssh/config leaf02 'systemctl restart bgp'
 
-_obtain-role-requirements:
+obtain-role-requirements:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -127,6 +79,54 @@ _obtain-role-requirements:
 
     ansible-galaxy install --ignore-errors -r requirements.yaml
 
-_prefetch_docker_images:
+prefetch-docker-images:
     docker pull {{VLAB_FLAME_VM_IMAGE}}
     docker pull {{VLAB_FLAME_SONIC_IMAGE}}
+
+# Generate TLS certificates for metal-stack components (use 'just gen-certs force' to regenerate)
+gen-certs force="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [ -z "{{force}}" ] && [ -f "files/certs/ca.pem" ]; then
+        echo "Certificates already exist, skipping generation"
+        exit 0
+    fi
+
+    echo "Generating certificates..."
+    cd files/certs
+
+    # Clean up any existing certs
+    rm -f *.pem **/*.pem **/*.crt
+
+    # Generate CA certificate
+    echo "Generating CA cert"
+    cfssl genkey -initca ca-csr.json | cfssljson -bare ca
+    rm -f *.csr
+
+    # Generate component certificates
+    for component in grpc masterdata-api; do
+        pushd $component > /dev/null
+        echo "Generating $component certs"
+
+        if [ -f "server.json" ]; then
+            cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client-server server.json | cfssljson -bare server
+        fi
+
+        if [ -f "client.json" ]; then
+            cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client client.json | cfssljson -bare client
+        fi
+
+        rm -f *.csr
+        popd > /dev/null
+    done
+
+    # Generate NSQ cert with concatenated format
+    pushd nsq > /dev/null
+    echo "Generating nsq certs"
+    cfssl gencert -ca=../ca.pem -ca-key=../ca-key.pem -config=../ca-config.json -profile=client-server client.json | cfssljson -bare client
+    cat client.pem client-key.pem > client.crt
+    rm -f *.csr
+    popd > /dev/null
+
+    echo "Certificate generation complete"
