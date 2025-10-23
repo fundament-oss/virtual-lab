@@ -1,7 +1,7 @@
 _default:
     @just --list control
 
-export VLAB_FLAME_VM_IMAGE   := "ghcr.io/metal-stack/mini-lab-vms:latest"
+export VLAB_FLAME_VM_IMAGE    := "ghcr.io/metal-stack/mini-lab-vms:latest"
 export VLAB_FLAME_SONIC_IMAGE := "ghcr.io/metal-stack/mini-lab-sonic:latest"
 
 start: _obtain-role-requirements
