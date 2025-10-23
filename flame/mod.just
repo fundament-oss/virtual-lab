@@ -4,13 +4,11 @@ _default:
 export VLAB_FLAME_VM_IMAGE    := "ghcr.io/metal-stack/mini-lab-vms:latest"
 export VLAB_FLAME_SONIC_IMAGE := "ghcr.io/metal-stack/mini-lab-sonic:latest"
 
-start: _obtain-role-requirements
-    docker pull {{VLAB_FLAME_VM_IMAGE}}
-    docker pull {{VLAB_FLAME_SONIC_IMAGE}}
+start: _obtain-role-requirements _prefetch_docker_images
     ansible-playbook \
        -i inventories/control-plane.yaml \
        control-plane.playbook.yaml \
-       --extra-vars "@.extra_vars.yaml"
+       # --extra-vars "@.extra_vars.yaml"
     # TODO: start control partition (containerlab + ansible playbook)
 
     # image: ghcr.io/metal-stack/metal-deployment-base:${DEPLOYMENT_BASE_IMAGE_TAG}
@@ -65,31 +63,22 @@ _obtain-role-requirements:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # --- Config ---
     METAL_STACK_RELEASE_VERSION="${METAL_STACK_RELEASE_VERSION:?Missing METAL_STACK_RELEASE_VERSION}"
     RELEASE_VECTOR_URL="https://raw.githubusercontent.com/metal-stack/releases/${METAL_STACK_RELEASE_VERSION}/release.yaml"
     OUTPUT_FILE="requirements.yaml"
 
     echo "Downloading release vector from ${RELEASE_VECTOR_URL} ..."
-    release_vector=$(curl -sSL "${RELEASE_VECTOR_URL}")
+    curl -sSL "${RELEASE_VECTOR_URL}" \
+      | yq -o=json '.["ansible-roles"]' \
+      | jq 'to_entries | map({
+          src: .value.repository,
+          name: .key,
+          version: (env[(.key | ascii_upcase | gsub("-"; "_")) + "_VERSION"] // .value.version)
+        })' \
+      | yq -P > "$OUTPUT_FILE"
 
-    # parse with yq -> json for easier processing
-    ansible_roles_json=$(echo "$release_vector" | yq -o=json '.["ansible-roles"]')
+    ansible-galaxy install --ignore-errors -r requirements.yaml
 
-    # Create an empty YAML array
-    echo "" > "$OUTPUT_FILE"
-
-    # Iterate through roles
-    echo "$ansible_roles_json" | jq -r 'to_entries[] | [.key, .value.repository, .value.version] | @tsv' | \
-    while IFS=$'\t' read -r role_name repo version; do
-      # convert role_name (like metal-lib) to env var name (METAL_LIB_VERSION)
-      env_var_name=$(echo "${role_name^^}_VERSION" | tr '-' '_')
-      # if env var exists, override version
-      version_value="${!env_var_name:-$version}"
-
-      cat <<EOF >> "$OUTPUT_FILE"
-    - src: ${repo}
-      name: ${role_name}
-      version: ${version_value}
-    EOF
-    done
+_prefetch_docker_images:
+    docker pull {{VLAB_FLAME_VM_IMAGE}}
+    docker pull {{VLAB_FLAME_SONIC_IMAGE}}

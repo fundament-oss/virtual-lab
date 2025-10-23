@@ -26,10 +26,10 @@ gardener_cloud_profile_machine_types:
 gardener_cloud_profile_regions:
   - name: local
     zones:
-      - name: mini-lab # TODO vlab
+      - name: mini-lab # TODO vlab-flame ?
 
 gardener_cloud_profile_partitions:
-  mini-lab: # TODO vlab
+  mini-lab: # TODO vlab-flame ?
     default-machine-types:
       firewall:
         - v1-small-x86

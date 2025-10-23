@@ -1,2 +1,2 @@
 ---
-gardener_enabled: "{{ lookup('env', 'GARDENER_ENABLED') | default('', false) }}"
+gardener_enabled: "{{ lookup('env', 'GARDENER_ENABLED') | default('', true) }}"
