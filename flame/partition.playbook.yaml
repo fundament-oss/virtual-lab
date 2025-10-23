@@ -9,9 +9,9 @@
         delay: 10
         timeout: 50
   roles:
-    - name: ansible-common
+    - name: metal-stack.ansible-common
       tags: always
-    - name: metal-roles/partition/roles/sonic
+    - name: metal-stack.metal-roles/partition/roles/sonic
       tags: sonic
     - name: sonic
       tags: sonic
@@ -25,20 +25,20 @@
         search_string: deb [arch=amd64] http://deb.debian.org/debian/ bullseye-backports main contrib non-free
         line: deb [arch=amd64] http://archive.debian.org/debian/ bullseye-backports main contrib non-free
   roles:
-    - name: ansible-common
+    - name: metal-stack.ansible-common
       tags: always
-    - name: metal-roles/partition/roles/dhcp
+    - name: metal-stack.metal-roles/partition/roles/dhcp
       tags: dhcp
-    - name: metal-roles/partition/roles/pixiecore
+    - name: metal-stack.metal-roles/partition/roles/pixiecore
       tags: pixiecore
 
 - name: Deploy metal-core
   hosts: leaves
   any_errors_fatal: true
   roles:
-    - name: ansible-common
+    - name: metal-stack.ansible-common
       tags: always
-    - name: metal-roles/partition/roles/metal-core
+    - name: metal-stack.metal-roles/partition/roles/metal-core
       tags: metal-core
 
 - name: Wait for switches
@@ -46,13 +46,13 @@
   connection: local
   gather_facts: false
   roles:
-    - name: ansible-common
+    - name: metal-stack.ansible-common
       tags: always
-    - name: metal-roles
+    - name: metal-stack.metal-roles
       tags: always
-    - name: metal-ansible-modules
+    - name: metal-stack.metal-ansible-modules
       tags: always
-    - name: metal-roles/control-plane/roles/metal-python
+    - name: metal-stack.metal-roles/control-plane/roles/metal-python
       tags: metal-python
   post_tasks:
     - name: Wait for switches to register

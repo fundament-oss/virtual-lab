@@ -4,32 +4,31 @@
   connection: local
   gather_facts: false
   roles:
-    - name: ansible-common
+    - name: metal-stack.ansible-common
       tags: always
     - name: ingress-controller
       tags: ingress-controller
-    - name: metal-roles/control-plane/roles/prepare
+    - name: metal-stack.metal-roles/control-plane/roles/prepare
       tags: prepare
-    - name: metal-roles/control-plane/roles/nsq
+    - name: metal-stack.metal-roles/control-plane/roles/nsq
       tags: nsq
-    - name: metal-roles/control-plane/roles/metal-db
+    - name: metal-stack.metal-roles/control-plane/roles/metal-db
       tags: metal-db
-    - name: metal-roles/control-plane/roles/ipam-db
+    - name: metal-stack.metal-roles/control-plane/roles/ipam-db
       tags: ipam-db
-    - name: metal-roles/control-plane/roles/headscale
+    - name: metal-stack.metal-roles/control-plane/roles/headscale
       tags: headscale
-    - name: metal-roles/control-plane/roles/masterdata-db
+    - name: metal-stack.metal-roles/control-plane/roles/masterdata-db
       tags: masterdata-db
-    - name: metal-roles/control-plane/roles/auditing-timescaledb
+    - name: metal-stack.metal-roles/control-plane/roles/auditing-timescaledb
       when: metal_auditing_timescaledb_enabled
       tags: auditing
-    - name: metal-roles/control-plane/roles/valkey
+    - name: metal-stack.metal-roles/control-plane/roles/valkey
       tags: valkey
     - name: auth-dex
       tags: auth
-    - name: metal-roles/control-plane/roles/metal
+    - name: metal-stack.metal-roles/control-plane/roles/metal
       tags: metal
-
-- name: deploy gardener
-  import_playbook: deploy_gardener.yaml
-  when: gardener_enabled
+# - name: deploy gardener
+#   import_playbook: deploy_gardener.yaml
+#   when: gardener_enabled

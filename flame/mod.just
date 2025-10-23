@@ -72,7 +72,7 @@ _obtain-role-requirements:
       | yq -o=json '.["ansible-roles"]' \
       | jq 'to_entries | map({
           src: .value.repository,
-          name: .key,
+          name: ("metal-stack." + .key),
           version: (env[(.key | ascii_upcase | gsub("-"; "_")) + "_VERSION"] // .value.version)
         })' \
       | yq -P > "$OUTPUT_FILE"
