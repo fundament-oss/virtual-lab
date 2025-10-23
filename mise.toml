@@ -10,7 +10,6 @@ k3d = "5.8.3"
 # TODO: qemu, probably better installed by the user in the OS itself.
 
 ## Deployment
-# TODO: ansible
 # TODO: helm
 # TODO: kubectl
 
@@ -19,3 +18,32 @@ k3d = "5.8.3"
 # TODO: gardenctl
 # TODO: cilium-cli ???
 k9s = "0.50.13"
+
+
+## Python setup
+python = "3.12"
+
+[env]
+_.path = "{{config_root}}/.python/.venv/bin"
+
+[tasks.setup-venv]
+description = "Create Python virtual environment"
+run = "python -m venv .python/.venv"
+outputs = [".python/.venv/bin/python"]
+
+[tasks.python-deps]
+description = "Install Python dependencies into venv"
+depends = ["setup-venv"]
+run = ".python/.venv/bin/pip install -r .python/requirements.txt"
+sources = [".python/requirements.txt"]
+outputs = [".python/.venv/lib/python*/site-packages/ansible"]
+
+[tasks.ansible-collections]
+description = "Install Ansible collections"
+depends = ["python-deps"]
+run = ".python/.venv/bin/ansible-galaxy collection install -r .python/ansible-requirements.yaml"
+sources = [".python/ansible-requirements.yaml"]
+outputs = [".python/.venv/lib/python*/site-packages/ansible_collections/"]
+
+[hooks]
+postinstall = "mise run ansible-collections"

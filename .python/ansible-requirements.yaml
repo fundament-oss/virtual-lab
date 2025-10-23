@@ -1,0 +1,5 @@
+---
+# Ansible collection dependencies
+collections:
+  - name: kubernetes.core
+  - name: community.general

@@ -1,1 +1,5 @@
-**/state
+# Python virtual environment and packages (mise)
+.python/.venv/
+
+# Generated Ansible requirements
+flame/requirements.yaml
