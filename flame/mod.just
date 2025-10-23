@@ -55,7 +55,7 @@ start: obtain-role-requirements prefetch-docker-images gen-certs
 # 	ssh -F files/ssh/config leaf01 'systemctl restart metal-core'
 # 	ssh -F files/ssh/config leaf02 'systemctl restart metal-core'
 # # TODO: for community SONiC versions > 202311 a bgp restart is needed in the virtual environment
-# 	sleep 10
+# 	sleep 15
 # 	ssh -F files/ssh/config leaf01 'systemctl restart bgp'
 # 	ssh -F files/ssh/config leaf02 'systemctl restart bgp'
 
