@@ -6,7 +6,8 @@
 # Commands
 YQ=docker run --rm -i -v $(shell pwd):/workdir mikefarah/yq:4
 
-KINDCONFIG := $(or $(KINDCONFIG),control-plane/kind.yaml)
+# Done
+# KINDCONFIG := $(or $(KINDCONFIG),control-plane/kind.yaml)
 KUBECONFIG := $(shell pwd)/.kubeconfig
 
 METALCTL_HMAC := $(or $(METALCTL_HMAC),metal-admin)
@@ -40,10 +41,11 @@ else
 $(error Unknown flavor $(MINI_LAB_FLAVOR))
 endif
 
-KIND_ARGS=
-ifneq ($(K8S_VERSION),)
-KIND_ARGS=--image kindest/node:v$(K8S_VERSION)
-endif
+# Done
+# KIND_ARGS=
+# ifneq ($(K8S_VERSION),)
+# KIND_ARGS=--image kindest/node:v$(K8S_VERSION)
+# endif
 
 ifeq ($(CI),true)
   DOCKER_COMPOSE_RUN_ARG=--no-TTY --rm
@@ -73,38 +75,42 @@ restart: down up
 .PHONY: down
 down: cleanup
 
-.PHONY: gen-certs
-gen-certs:
-	@if ! [ -f "files/certs/ca.pem" ]; then \
-		echo "certificate generation required, running cfssl container"; \
-		docker run --rm \
-			--user $$(id -u):$$(id -g) \
-			--entrypoint bash \
-			-v ${PWD}:/work \
-			cfssl/cfssl /work/scripts/roll_certs.sh; fi
+# Done
+# .PHONY: gen-certs
+# gen-certs:
+# 	@if ! [ -f "files/certs/ca.pem" ]; then \
+# 		echo "certificate generation required, running cfssl container"; \
+# 		docker run --rm \
+# 			--user $$(id -u):$$(id -g) \
+# 			--entrypoint bash \
+# 			-v ${PWD}:/work \
+# 			cfssl/cfssl /work/scripts/roll_certs.sh; fi
 
-.PHONY: roll-certs
-roll-certs: # Done
-	rm files/certs/ca.pem
-	$(MAKE) gen-certs
+# Done
+# .PHONY: roll-certs
+# roll-certs: # Done
+# 	rm files/certs/ca.pem
+# 	$(MAKE) gen-certs
 
 .PHONY: control-plane
 control-plane: control-plane-bake env
 	docker compose up --remove-orphans --force-recreate control-plane
 
-.PHONY: create-proxy-registries
-create-proxy-registries: # Done
-	docker compose up -d --force-recreate proxy-docker proxy-ghcr proxy-gcr proxy-k8s proxy-quay # Done
+# Done
+# .PHONY: create-proxy-registries
+# create-proxy-registries:
+# 	docker compose up -d --force-recreate proxy-docker proxy-ghcr proxy-gcr proxy-k8s proxy-quay # Done
 
-.PHONY: control-plane-bake
-control-plane-bake: # Done
-	@if ! which kind > /dev/null; then echo "kind needs to be installed"; exit 1; fi
-	@if ! kind get clusters | grep metal-control-plane > /dev/null; then \
-		kind create cluster $(KIND_ARGS) \
-			--name metal-control-plane \
-			--config $(KINDCONFIG) \
-			--kubeconfig $(KUBECONFIG); fi
-	$(MAKE) create-proxy-registries
+# Done
+# .PHONY: control-plane-bake
+# control-plane-bake:
+# 	@if ! which kind > /dev/null; then echo "kind needs to be installed"; exit 1; fi
+# 	@if ! kind get clusters | grep metal-control-plane > /dev/null; then \
+# 		kind create cluster $(KIND_ARGS) \
+# 			--name metal-control-plane \
+# 			--config $(KINDCONFIG) \
+# 			--kubeconfig $(KUBECONFIG); fi
+# 	$(MAKE) create-proxy-registries
 
 .PHONY: partition
 partition: partition-bake
@@ -140,14 +146,15 @@ external_network:
 env:
 	@./env.sh
 
-.PHONY: cleanup
-cleanup: cleanup-control-plane cleanup-partition
+# Wontdo (instead individual stages)
+# .PHONY: cleanup
+# cleanup: cleanup-control-plane cleanup-partition
 
-.PHONY: cleanup-control-plane
-cleanup-control-plane:
-	kind delete cluster --name metal-control-plane
-	docker compose down
-	rm -f $(KUBECONFIG)
+# Done
+# .PHONY: cleanup-control-plane
+# cleanup-control-plane:
+# 	docker compose down
+# 	rm -f $(KUBECONFIG)
 
 .PHONY: cleanup-partition
 cleanup-partition:

@@ -26,6 +26,8 @@ Run `just help` to get introduced to the available commands in this lab. Run `ju
 
 ## Layers
 
+TODO: layers? Also ambigious term. Stages? Phases?
+
 It's probably not helping that I'm using different terms than MEP-18. I had a hard time wrapping my head around the naming and the grouping of objects and just wanted to get some unique names that don't conflict with any other terminology or technology that is used in the metal-stack/gardener landscape.
 
 - **spark**: The spark-layer is a very simple 3-node k8s cluster which runs the control-planes for the flame-layer. MEP-18 calls this "Initial Cluster" or "K3s Standalone". The spark layer is not auto-healing.
